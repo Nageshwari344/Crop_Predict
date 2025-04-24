@@ -1,0 +1,5 @@
+{
+    "mangodb_conection_string":"mongodb+srv://Marliya:marliya@marliya.1oe9zip.mongodb.net/",
+    "mongodb_database":"user",
+    "secret_key": "22eee61d6ab84e98daa7573bc9a59fb"
+}

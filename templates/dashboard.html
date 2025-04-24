@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgriGuard Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="relative min-h-screen bg-cover bg-center" style="background-image: url('static/img/dashboard-agriguard.jpeg');">
+
+  <div class="absolute inset-0 bg-cover bg-center blur-sm brightness-75 z-0" style="background-image: url('static/img/dashboard-agriguard.jpeg');"></div>
+
+  <div class="relative z-10">
+
+    <nav class="bg-white/80 backdrop-blur-md shadow-lg">
+      <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-green-700">🌱 AgriGuard Dashboard</h1>
+        <ul class="flex space-x-6 font-semibold text-gray-700">
+          <li><a href="#" class="tab-link text-green-600" data-tab="homeTab">Home</a></li>
+          <li><a href="#" class="tab-link hover:text-green-600" data-tab="detectTab">Detect Disease</a></li>
+          <li><a href="#" class="tab-link hover:text-green-600" data-tab="reportTab">Reports</a></li>
+          <li><a href="/" class="text-red-600 hover:underline">Logout</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="max-w-5xl mx-auto mt-8 px-4 text-white">
+      
+      <div id="homeTab" class="tab-content">
+        <h2 class="text-xl font-bold text-green-200 mb-4">Welcome to AgriGuard!</h2>
+        <p>This is your personalized dashboard. Use the navigation tabs to detect plant diseases, view reports, and manage your profile.</p>
+      </div>
+
+    <!-- Detect Disease Tab -->
+    <div id="detectTab" class="tab-content hidden">
+      <h2 class="text-xl font-bold text-green-200 mb-4 text-center">Detect Disease</h2>
+      <div class="flex justify-center">
+        <button id="openDetectionModal" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+          Upload Image
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal for image upload -->
+    <div id="detectionModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center">
+      <div class="bg-white rounded-xl p-6 w-full max-w-md space-y-4 relative shadow-lg">
+        <button id="closeModal" class="absolute top-2 right-3 text-gray-600 hover:text-red-500 text-xl font-bold">&times;</button>
+        <h3 class="text-xl font-semibold text-green-700">Upload Crop Image</h3>
+        
+        <input type="file" id="imageInput" accept="image/*" class="block w-full text-sm text-gray-700" />
+        
+        <div id="preview" class="mt-2 hidden">
+          <img id="previewImg" src="" alt="Preview" class="w-40 h-40 object-cover mx-auto rounded" />
+        </div>
+        
+        <button id="detectBtn" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded w-full">
+          Detect
+        </button>
+        
+        <p id="detectionResult" class="text-center text-lg font-bold mt-2 hidden text-green-800"></p>
+      </div>
+    </div>
+
+    <!-- JS -->
+    <script>
+      const openModalBtn = document.getElementById('openDetectionModal');
+      const closeModalBtn = document.getElementById('closeModal');
+      const modal = document.getElementById('detectionModal');
+      const imageInput = document.getElementById('imageInput');
+      const preview = document.getElementById('preview');
+      const previewImg = document.getElementById('previewImg');
+      const detectBtn = document.getElementById('detectBtn');
+      const resultText = document.getElementById('detectionResult');
+
+      openModalBtn.onclick = () => modal.classList.remove('hidden');
+      closeModalBtn.onclick = () => {
+        modal.classList.add('hidden');
+        preview.classList.add('hidden');
+        resultText.classList.add('hidden');
+        imageInput.value = '';
+      };
+
+      imageInput.onchange = () => {
+        const file = imageInput.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = e => {
+            previewImg.src = e.target.result;
+            preview.classList.remove('hidden');
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+
+      detectBtn.onclick = () => {
+        const file = imageInput.files[0];
+        if (!file) {
+          alert("Please upload an image.");
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append('image', file);
+
+        fetch('/predict', {
+              method: 'POST',
+              body: formData
+            })
+
+        .then(res => res.json())
+        .then(data => {
+          resultText.textContent = `Predicted: ${data.prediction} (${data.confidence}%)`;
+          resultText.classList.remove('hidden');
+        })
+        .catch(err => {
+          resultText.textContent = 'Error predicting image.';
+          resultText.classList.remove('hidden');
+          console.error(err);
+        });
+      };
+    </script>
+
+
+
+    <div id="reportTab" class="tab-content hidden">
+      <h2 class="text-xl font-bold text-green-200 mb-4">Disease Reports</h2>
+    
+      <div class="overflow-x-auto bg-white rounded-lg shadow p-4 text-gray-800">
+        <table class="min-w-full table-auto border border-gray-300">
+          <thead class="bg-green-100 text-green-800">
+            <tr>
+              <th class="px-4 py-2 border border-gray-300">#</th>
+              <th class="px-4 py-2 border border-gray-300">Disease Name</th>
+              <th class="px-4 py-2 border border-gray-300">Crop Affected</th>
+              <th class="px-4 py-2 border border-gray-300">Symptoms</th>
+              <th class="px-4 py-2 border border-gray-300">Treatment</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="px-4 py-2 border">1</td><td class="px-4 py-2 border">Leaf Blight</td><td class="px-4 py-2 border">Rice</td><td class="px-4 py-2 border">Yellowing and drying leaf tips</td><td class="px-4 py-2 border">Use resistant varieties, apply fungicide</td></tr>
+            <tr class="bg-gray-50"><td class="px-4 py-2 border">2</td><td class="px-4 py-2 border">Powdery Mildew</td><td class="px-4 py-2 border">Wheat</td><td class="px-4 py-2 border">White powder on leaves</td><td class="px-4 py-2 border">Apply sulfur-based fungicides</td></tr>
+            <tr><td class="px-4 py-2 border">3</td><td class="px-4 py-2 border">Downy Mildew</td><td class="px-4 py-2 border">Grapes</td><td class="px-4 py-2 border">Yellow spots on upper leaf surface</td><td class="px-4 py-2 border">Copper fungicide, ensure air circulation</td></tr>
+            <tr class="bg-gray-50"><td class="px-4 py-2 border">4</td><td class="px-4 py-2 border">Rust</td><td class="px-4 py-2 border">Beans</td><td class="px-4 py-2 border">Orange-red pustules on leaves</td><td class="px-4 py-2 border">Remove infected leaves, use fungicide</td></tr>
+            <tr><td class="px-4 py-2 border">5</td><td class="px-4 py-2 border">Early Blight</td><td class="px-4 py-2 border">Tomato</td><td class="px-4 py-2 border">Brown spots with concentric rings</td><td class="px-4 py-2 border">Use copper-based fungicide</td></tr>
+            <tr class="bg-gray-50"><td class="px-4 py-2 border">6</td><td class="px-4 py-2 border">Late Blight</td><td class="px-4 py-2 border">Potato</td><td class="px-4 py-2 border">Dark spots, rotting leaves</td><td class="px-4 py-2 border">Fungicide spray, remove infected plants</td></tr>
+            <tr><td class="px-4 py-2 border">7</td><td class="px-4 py-2 border">Leaf Curl</td><td class="px-4 py-2 border">Chili</td><td class="px-4 py-2 border">Curled, twisted leaves</td><td class="px-4 py-2 border">Control aphids, spray neem oil</td></tr>
+            <tr class="bg-gray-50"><td class="px-4 py-2 border">8</td><td class="px-4 py-2 border">Anthracnose</td><td class="px-4 py-2 border">Mango</td><td class="px-4 py-2 border">Dark sunken lesions on leaves</td><td class="px-4 py-2 border">Remove infected parts, use fungicide</td></tr>
+            <tr><td class="px-4 py-2 border">9</td><td class="px-4 py-2 border">Sooty Mold</td><td class="px-4 py-2 border">Citrus</td><td class="px-4 py-2 border">Black fungal layer on leaves</td><td class="px-4 py-2 border">Control insects, wash off mold</td></tr>
+            <tr class="bg-gray-50"><td class="px-4 py-2 border">10</td><td class="px-4 py-2 border">Bacterial Leaf Spot</td><td class="px-4 py-2 border">Pepper</td><td class="px-4 py-2 border">Water-soaked dark spots</td><td class="px-4 py-2 border">Use bactericides, crop rotation</td></tr>
+            <tr><td class="px-4 py-2 border">11</td><td class="px-4 py-2 border">Leaf Spot</td><td class="px-4 py-2 border">Groundnut</td><td class="px-4 py-2 border">Small dark circular lesions</td><td class="px-4 py-2 border">Apply chlorothalonil-based fungicide</td></tr>
+            <tr class="bg-gray-50"><td class="px-4 py-2 border">12</td><td class="px-4 py-2 border">Fusarium Wilt</td><td class="px-4 py-2 border">Banana</td><td class="px-4 py-2 border">Yellowing & wilting leaves</td><td class="px-4 py-2 border">Use resistant varieties, crop rotation</td></tr>
+            <tr><td class="px-4 py-2 border">13</td><td class="px-4 py-2 border">Verticillium Wilt</td><td class="px-4 py-2 border">Cotton</td><td class="px-4 py-2 border">Yellowing between veins</td><td class="px-4 py-2 border">Soil solarization, resistant crops</td></tr>
+            <tr class="bg-gray-50"><td class="px-4 py-2 border">14</td><td class="px-4 py-2 border">Alternaria Leaf Spot</td><td class="px-4 py-2 border">Cabbage</td><td class="px-4 py-2 border">Small black/brown lesions</td><td class="px-4 py-2 border">Spray mancozeb or chlorothalonil</td></tr>
+            <tr><td class="px-4 py-2 border">15</td><td class="px-4 py-2 border">Yellow Mosaic</td><td class="px-4 py-2 border">Soybean</td><td class="px-4 py-2 border">Mottled yellow leaves</td><td class="px-4 py-2 border">Control whiteflies, remove weeds</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+
+    </div>
+  </div>
+
+  <script>
+    const tabLinks = document.querySelectorAll('.tab-link');
+    const tabContents = document.querySelectorAll('.tab-content');
+  
+    tabLinks.forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+  
+        tabContents.forEach(tab => tab.classList.add('hidden'));
+        tabLinks.forEach(tab => tab.classList.remove('text-green-600'));
+  
+        const activeTab = document.getElementById(this.dataset.tab);
+        activeTab.classList.remove('hidden');
+        this.classList.add('text-green-600');
+      });
+    });
+  
+   
+  </script>
+  
+</body>
+</html>

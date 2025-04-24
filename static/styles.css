@@ -1,0 +1,47 @@
+.fancy-button {
+    outline: none;
+    cursor: pointer;
+    border: none;
+    padding: 0.9rem 2rem;
+    margin: 0;
+    font-family: inherit;
+    font-size: inherit;
+    position: relative;
+    display: inline-block;
+    letter-spacing: 0.05rem;
+    font-weight: 700;
+    font-size: 17px;
+    border-radius: 500px;
+    overflow: hidden;
+    background: #66ff66;
+    color: rgb(89, 163, 105);
+    transition: background 0.4s ease;
+  }
+  
+  .fancy-button span {
+    position: relative;
+    z-index: 10;
+    transition: color 0.4s;
+  }
+  
+  .fancy-button:hover span {
+    color: rgb(8, 9, 17);
+  }
+  
+  .fancy-button::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -10%;
+    width: 120%;
+    height: 100%;
+    background: #e9e3e3;
+    transform: skew(30deg);
+    transition: transform 0.4s cubic-bezier(0.3, 1, 0.8, 1);
+    z-index: 0;
+  }
+  
+  .fancy-button:hover::before {
+    transform: translate3d(100%, 0, 0);
+  }
+  
