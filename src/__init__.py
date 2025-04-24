@@ -1,7 +1,7 @@
 import json
 
 def get_config(key):
-    config_file = "C:\Users\swathika\Downloads\CropPredict\config.json"
+    config_file = "C:\\Users\\swathika\\Downloads\\CropPredict\\config.json"
     file = open(config_file, "r")
     config = json.loads(file.read())
     file.close()
