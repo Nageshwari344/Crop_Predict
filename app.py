@@ -1,5 +1,4 @@
 import sys
-sys.path.append('Users\\swathika\\Downloads\\CropPredict')
 from src.Database import Database 
 from flask import Flask
 from src import get_config
